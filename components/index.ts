@@ -4,7 +4,7 @@ import CustomFilter from "./CustomFilter";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import ShowMore from "./ShowMore";
-import SearchBar from "./Searchbar";
+import SearchBar from "./SearchBar";
 import Hero from "./Hero";
 
 export {
