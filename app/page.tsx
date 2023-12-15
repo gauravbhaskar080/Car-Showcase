@@ -1,113 +1,178 @@
+
+"use client";
+
+import { CarCard, CustomFilter, Hero, SearchBar, ShowMore } from "@/components";
+import { fetchCars } from "@/utils";
+import { HomeProps } from "@/types";
+import { fuels, yearsOfProduction } from "@/constants";
+import { useState, useEffect } from "react";
 import Image from 'next/image'
 
 export default function Home() {
+  // const allCars = await fetchCars({
+  //   manufacturer: searchParams.manufacturer || "",
+  //   year: searchParams.year || 2022,
+  //   fuel: searchParams.fuel || "",
+  //   limit: searchParams.limit || 10,
+  //   model: searchParams.model || "",
+  // });
+  const [allCars, setAllCars] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  //search states
+  const [manufacturer, setManufacturer] = useState("");
+  const [model, setModel] = useState("");
+
+  //filter states
+  const [fuel, setFuel] = useState("");
+  const [year, setYear] = useState(2022);
+
+  //pagination states
+  const [limit, setLimit] = useState(10);
+
+  const getCars = async () => {
+    setLoading(true);
+    try {
+      const result = await fetchCars({
+        manufacturer: manufacturer || "",
+        year: year || 2022,
+        fuel: fuel || "",
+        limit: limit || 10,
+        model: model || "",
+      });
+      setAllCars(result);
+    } catch (error) {
+      console.log(error);
+    }finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCars();
+  }, [fuel, year, limit, manufacturer, model]);
+
+  const isDataEmpty = !Array.isArray(allCars) || allCars.length < 1 || !allCars;
+
+  // console.log(allCars);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="overflow-hidden">
+      <Hero />
+
+      <div className="mt-12 padding-x padding-y max-width" id="discover">
+        <div className="home__text-container">
+          <h1 className="text-4xl font-extrabold">Car Catalogue</h1>
+          <p>Explore out cars you might like</p>
         </div>
-      </div>
+        <div className="home__filters">
+          <SearchBar setManufacturer={setManufacturer} setModel={setModel} />
+          <div className="home__filter-container">
+            <CustomFilter title="fuel" options={fuels} setFilter={setFuel} />
+            <CustomFilter
+              title="year"
+              options={yearsOfProduction}
+              setFilter={setYear}
+            />
+          </div>
+        </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        {allCars.length > 0 ? (
+          <section>
+            <div className="home__cars-wrapper">
+              {allCars?.map((car) => (
+                <CarCard car={car} />
+              ))}
+            </div>
+            {loading && (
+              // <div className="mt-16 w-full flex-center">
+              //   <Image
+              //   src="/logo.svg"
+              //   alt="loader"
+              //   width={250}
+              //   height={250}
+              //   className="object-contain"
+              //   />
+              // </div>
+              <div className="loader flex justify-center pt-10 ">
+                <svg
+                  width="120px"
+                  viewBox="0 0 300 150"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="svgIcon"
+                >
+                  <g
+                    transform="scale(0.5) translate(210 30)"
+                    stroke="#008272"
+                    fill="none"
+                    fill-rule="evenodd"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      className="body"
+                      d="M30.3214 78.3067H315.142C330.368 78.7637 344.817 85.1351 355.423 96.069C366.029 107.003 371.957 121.639 371.95 136.872V177.867C372.081 180.992 371.585 184.111 370.491 187.041C369.396 189.971 367.727 192.653 365.58 194.927C363.433 197.201 360.852 199.023 357.99 200.284C355.128 201.545 352.042 202.22 348.915 202.269H323.146M69.3647 1.00097C69.3647 1.00097 22.3175 93.924 10.7998 118.131C5.32435 129.594 2.01515 141.97 1.03893 154.636C0.671334 163.555 2.91346 172.387 7.49055 180.05C12.0676 187.713 18.7809 193.875 26.8075 197.779M297.573 78.3067L243.888 17.5944C240.594 12.4674 236.057 8.25717 230.698 5.35585C225.339 2.45452 219.333 0.956398 213.239 1.00097H41.4487M249.354 202.269H101.771M147.647 202.269V1.00097"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                      stroke-width="17"
+                    />
+                  </g>
+                  <g
+                    transform="scale(3) translate(1 7)"
+                    stroke="#008272"
+                    fill="none"
+                    fill-rule="evenodd"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <ellipse
+                      stroke-width="3"
+                      fill="#FFF"
+                      cx="83.493"
+                      cy="30.25"
+                      rx="6.922"
+                      ry="6.808"
+                    />
+                    <ellipse
+                      stroke-width="3"
+                      fill="#FFF"
+                      cx="46.511"
+                      cy="30.25"
+                      rx="6.922"
+                      ry="6.808"
+                    />
+                    <path
+                      className="line first"
+                      d="M22.5 16.5H2.475"
+                      stroke-width="3"
+                    />
+                    <path
+                      className="line second"
+                      d="M20.5 23.5H.4755"
+                      stroke-width="3"
+                    />
+                    <path
+                      className="line third"
+                      d="M25.5 9.5h-19"
+                      stroke-width="3"
+                    />
+                  </g>
+                </svg>
+              </div>
+            )}
+            <ShowMore
+              pageNumber={limit / 10}
+              isNext={limit > allCars.length}
+              setLimit={setLimit}
+            />
+          </section>
+        ) : (
+          <div className="home__error-container">
+            <h2 className="text-black text-xl font-bold">Oops, no results</h2>
+            <p>{allCars?.message}</p>
+          </div>
+        )}
       </div>
     </main>
-  )
+  );
 }
